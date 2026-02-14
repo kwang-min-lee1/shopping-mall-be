@@ -22,10 +22,22 @@ const mongoURI =
     : process.env.LOCAL_DB_ADDRESS;
     console.log("NODE_ENV =", process.env.NODE_ENV, "mongoURI =", mongoURI);
 
+// mongoose
+//     .connect (mongoURI)
+//     .then(()=>console.log("mongoose connected"))
+//     .catch((err)=>console.log("DB connection fail", err));
+
 mongoose
-    .connect (mongoURI)
-    .then(()=>console.log("mongoose connected"))
-    .catch((err)=>console.log("DB connection fail", err));
+  .connect(mongoURI)
+  .then(() => {
+    console.log("✅ MongoDB connected");
+  })
+  .catch((err) => {
+    console.log("❌ MongoDB connection error:", err.message);
+  });
+
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("mongoURI exists?", !!mongoURI);
 
 app.listen(process.env.PORT || 5000, ()=>{
     console.log("server on");
