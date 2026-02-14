@@ -12,9 +12,15 @@ app.use(bodyParser.json()); // req.body 가 객체로 인식된다.
 
 app.use("/api", indexRouter);
 
-const MONGODB_URI_PROD = process.env.MONGODB_URI_PROD;
-console.log("mongoouri", MONGODB_URI_PROD);
-const mongoURI = MONGODB_URI_PROD;
+// const MONGODB_URI_PROD = process.env.MONGODB_URI_PROD;
+// console.log("mongoouri", MONGODB_URI_PROD);
+// const mongoURI = MONGODB_URI_PROD;
+
+const mongoURI =
+  process.env.NODE_ENV === "production"
+    ? process.env.MONGODB_URI_PROD
+    : process.env.LOCAL_DB_ADDRESS;
+    console.log("NODE_ENV =", process.env.NODE_ENV, "mongoURI =", mongoURI);
 
 mongoose
     .connect (mongoURI)
