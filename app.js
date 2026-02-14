@@ -24,25 +24,17 @@ const mongoURI =
     console.log("mongoURI exists?", !!mongoURI);
 
 
-// mongoose
-//     .connect (mongoURI)
-//     .then(()=>console.log("mongoose connected"))
-//     .catch((err)=>console.log("DB connection fail", err));
-
 mongoose
-  .connect(mongoURI, { serverSelectionTimeoutMS: 30000 })
-  .then(() => {
-    console.log("✅ MongoDB connected");
+    .connect (mongoURI)
+    .then(()=>console.log("mongoose connected"))
+    .catch((err)=>console.log("DB connection fail", err));
 
-    app.listen(process.env.PORT || 5000, ()=>{
+
+app.listen(process.env.PORT || 5000, ()=>{
     console.log("server on");
-    });
+    }
+);
 
-  })
-  .catch((err) => {
-    console.log("❌ MongoDB connection error:", err.message);
-    process.exit(1); // DB 못붙으면 서버도 죽여서 재시작 유도
-  });
 
 
     
