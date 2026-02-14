@@ -20,7 +20,9 @@ const mongoURI =
   process.env.NODE_ENV === "production"
     ? process.env.MONGODB_URI_PROD
     : process.env.LOCAL_DB_ADDRESS;
-    console.log("NODE_ENV =", process.env.NODE_ENV, "mongoURI =", mongoURI);
+    console.log("NODE_ENV =", process.env.NODE_ENV);
+    console.log("mongoURI exists?", !!mongoURI);
+
 
 // mongoose
 //     .connect (mongoURI)
@@ -28,17 +30,19 @@ const mongoURI =
 //     .catch((err)=>console.log("DB connection fail", err));
 
 mongoose
-  .connect(mongoURI)
+  .connect(mongoURI, { serverSelectionTimeoutMS: 30000 })
   .then(() => {
     console.log("✅ MongoDB connected");
+
+    app.listen(process.env.PORT || 5000, ()=>{
+    console.log("server on");
+    });
+
   })
   .catch((err) => {
     console.log("❌ MongoDB connection error:", err.message);
+    process.exit(1); // DB 못붙으면 서버도 죽여서 재시작 유도
   });
 
-console.log("NODE_ENV:", process.env.NODE_ENV);
-console.log("mongoURI exists?", !!mongoURI);
 
-app.listen(process.env.PORT || 5000, ()=>{
-    console.log("server on");
-});    
+    
