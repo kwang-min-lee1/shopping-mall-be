@@ -30,10 +30,12 @@ authController.authenticate = async (req,res,next)=>{
         if(!tokenString) throw new Error("Token not found");
         const token = tokenString.replace("Bearer ","");
         jwt.verify(token,JWT_SECRET_KEY,(error,payload)=>{
-            if(error) throw new Error("invalid token");
+            if (error) return res.status(400).json({ status:"fail", error:"invalid token" });  // 오류로 강사와 다르게 수정함
+            // if(error) throw new Error("invalid token");
             req.userId = payload._id;
+            return next();
         });
-        next();
+       
     }catch(error){
         res.status(400).json({status:"fail", error:error.message});
     }
@@ -43,8 +45,11 @@ authController.checkAdminPermission = async(req,res,next)=>{
     try{
         const {userId} =req;
         const user = await User.findById(userId);
+
+        if (!user) throw new Error("user not found");  // 오류로 인해 개인적으로 추가한 코드
+
         if(user.level !== "admin") throw new Error("no permission");
-        next();
+        return next();
 
     }catch(error){
         res.status(400).json({status:"fail",error: error.message});
