@@ -40,7 +40,7 @@ productController.getProducts = async (req, res) => {
         const { page, name } = req.query;
         const cond = name ? { name: { $regex: name, $options: 'i' } } : {};
         let query = Product.find(cond);
-        let response = { status: "success" };
+        let response = { status: "success", totalPageNum: 1 };
 
         if (page) {
             query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
@@ -89,5 +89,16 @@ productController.updateProduct = async (req, res) => {
     }
 };
 
+productController.getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ status: "fail", error: "not found" });
+
+    res.status(200).json({ status: "success", product });
+  } catch (error) {
+    res.status(400).json({ status: "fail", error: error.message });
+  }
+};
 
 module.exports = productController;
