@@ -14,9 +14,12 @@ cartController.addItemToCart = async(req,res) => {
             cart = new Cart({userId});
             await cart.save();
         }
+
+        if (!cart.items) cart.items = [];   // ✅ 추가
+
         // 이미 카트에 들어가 있는 아이템이냐? productId, size 둘다 체크
-        const existItem = cart.item.find(
-            (item)=> item.productId.equals(productId) && item.size === size
+        const existItem = cart.items.find(
+            (item)=> item.productId?.equals(productId) && item.size === size
         );
 
         // 그렇다면 에러('이미 아이템이 카트에 있습니다.')
