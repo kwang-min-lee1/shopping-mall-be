@@ -37,4 +37,21 @@ cartController.addItemToCart = async(req,res) => {
     }
 }
 
+cartController.getCart=async(req,res)=>{
+    try{
+        const {userId} = req;
+        const cart = await Cart.findOne({ userId }).populate("items.productId");
+        // const cart = await Cart.findOne({userId}).populate({
+        //     path:"items",
+        //     populate: {
+        //         path: "productId",
+        //         model: "Product",
+        //     },
+        // });
+        return res.status(200).json({status:"success",data:cart ? cart.items:[],});
+    }catch(error){
+        return res.status(400).json({status:"fail",error:error.message});
+    }
+}
+
 module.exports = cartController;
