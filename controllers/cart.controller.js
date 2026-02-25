@@ -55,4 +55,75 @@ cartController.getCart=async(req,res)=>{
     }
 }
 
+
+cartController.deleteCartItem = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { id } = req.params; // cart item _id
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res.status(200).json({ status: "success", data: [], cartItemQty: 0 });
+    }
+
+    // items 배열에서 해당 item _id 제거
+    const before = cart.items.length;
+    cart.items = cart.items.filter((item) => item._id.toString() !== id);
+
+    // 혹시 이미 삭제된 id면 그대로 반환
+    if (cart.items.length === before) {
+      return res.status(200).json({
+        status: "success",
+        data: cart.items,
+        cartItemQty: cart.items.length,
+      });
+    }
+
+    await cart.save();
+
+    return res.status(200).json({
+      status: "success",
+      data: cart.items,
+      cartItemQty: cart.items.length,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+cartController.updateQty = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { id } = req.params;        // cart item _id
+    const { qty } = req.body;
+
+    // qty 유효성 (프론트에서 string으로 올 수도 있음)
+    const newQty = Number(qty);
+    if (!newQty || newQty < 1) {
+      throw new Error("수량은 1 이상이어야 합니다.");
+    }
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) throw new Error("카트를 찾을 수 없습니다.");
+
+    const item = cart.items.id(id);   // ✅ subdocument 찾기 (items 배열의 _id)
+    if (!item) throw new Error("카트 아이템을 찾을 수 없습니다.");
+
+    item.qty = newQty;
+    await cart.save();
+
+    // 프론트가 바로 렌더 가능하게 populate해서 내려주기(안해도 되지만 안정적)
+    const updatedCart = await Cart.findOne({ userId }).populate("items.productId");
+
+    return res.status(200).json({
+      status: "success",
+      data: updatedCart.items,
+      cartItemQty: updatedCart.items.length,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+
 module.exports = cartController;
