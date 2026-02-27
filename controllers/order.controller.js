@@ -39,4 +39,51 @@ orderController.createOrder = async(req,res)=>{
     }
 };
 
+const PAGE_SIZE = 10;
+
+orderController.getOrder = async (req,res) => {
+    try{
+        const {userId} = req;
+
+        const orderList = await Order.find({userId:userId}).populate({
+            path:"items",
+            populate:{
+                path:"productId",
+                model: "Product",
+                select: "image name",
+            },
+        })
+        .sort({ createdAt: -1 });
+
+        // ✅ count() -> countDocuments()
+        const totalItemNum = await Order.countDocuments({ userId: userId });
+        const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+        return res.status(200).json({status:"success", data:orderList, totalPageNum});
+    }catch(error){
+        return res.status(400).json({status:"fail", error:error.message});
+    }
+};
+
+
+orderController.updateOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) throw new Error("order not found");
+
+    return res.status(200).json({ status: "success", order });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+
+
 module.exports = orderController;
